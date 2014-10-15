@@ -7,6 +7,13 @@
 //
 
 #import "AppDelegate.h"
+#import "TableViewController.h"
+#import "PanoramaView.h"
+#import "ViewController.h"
+#import "MMDrawerVisualState.h"
+
+
+static NSString *const kAPIKey = @"AIzaSyCsftlqE-9CSEmdqhDK3uIPqhZn7SLXBmU";
 
 @interface AppDelegate ()
 
@@ -17,6 +24,27 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    // Google Maps iOS API from
+    [GMSServices provideAPIKey:kAPIKey];
+    
+    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    
+    UIViewController *mapsViewController = (UIViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"MapsViewControllerID"];
+    TableViewController *tableViewController = (TableViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"TableViewControllerID"];
+    UIViewController *panoramaViewController = (UIViewController *)[mainStoryboard instantiateViewControllerWithIdentifier:@"PanoramaViewControllerID"];
+    
+    self.drawerController = [[MMDrawerController alloc] initWithCenterViewController:mapsViewController leftDrawerViewController:tableViewController rightDrawerViewController:panoramaViewController];
+    [self.drawerController setMaximumLeftDrawerWidth:400.0];
+    [self.drawerController setMaximumRightDrawerWidth:400.0];
+    [self.drawerController setOpenDrawerGestureModeMask:MMOpenDrawerGestureModeAll];
+    
+    [self.drawerController setDrawerVisualStateBlock:[MMDrawerVisualState swingingDoorVisualStateBlock]];
+     
+     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+     
+     [self.window setRootViewController:self.drawerController];
+                                                                  
+
     return YES;
 }
 

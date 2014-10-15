@@ -7,8 +7,13 @@
 //
 
 #import "TableViewController.h"
+#import "AppDelegate.h"
 
 @interface TableViewController ()
+
+@property(strong, nonatomic) NSURLSession *markerSession;
+@property(copy,nonatomic) NSSet *markers;
+@property(strong, nonatomic) NSMutableArray *monitoredVehicle;
 
 @end
 
@@ -16,6 +21,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    // URL session
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    config.URLCache = [[NSURLCache alloc] initWithMemoryCapacity:10*1024*1+24 diskCapacity:20*1024*1024 diskPath:@"MaekerData"];
+    self.markerSession = [NSURLSession sessionWithConfiguration:config];
+    
+    [self downloadMarkerData];
     
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -32,34 +44,64 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-#warning Potentially incomplete method implementation.
     // Return the number of sections.
-    return 0;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-#warning Incomplete method implementation.
     // Return the number of rows in the section.
-    return 0;
+    return 7;
 }
 
-/*
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     
     // Configure the cell...
     
     return cell;
 }
-*/
 
-/*
+-(void)downloadMarkerData
+{
+    NSURL *vehicleURL = [NSURL URLWithString:@"http://data.itsfactory.fi/journeys/api/1/vehicle-activity"];
+    NSURLSessionDataTask *task = [self.markerSession dataTaskWithURL:vehicleURL completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+        NSLog(@"json: %@",json);
+        if (!error){
+        [self createMarkerObjectsWithJson:json];
+        }
+    }];
+    
+    [task resume];
+}
+
+-(void)createMarkerObjectsWithJson:(NSDictionary *)json
+{
+    NSMutableSet *mutableSet = [[NSMutableSet alloc] initWithSet:self.markers];
+        for (NSDictionary *vehicleData in json[@"body"])
+        {
+            GMSMarker *newMarker = [[GMSMarker alloc] init];
+            newMarker.title = vehicleData [@"vehicleRef"];
+            
+            newMarker.snippet = vehicleData[@"destinationShortName"]; // tähän origin => destination !!!
+            NSString *latitude = [NSString stringWithFormat:@"%@", vehicleData[@"vehicleLocation"][@"latitude"]];
+            NSString *longitude = [NSString stringWithFormat:@"%@", vehicleData[@"vehicleLocation"][@"longitude"]];
+            newMarker.position = CLLocationCoordinate2DMake([latitude doubleValue], [longitude doubleValue]);
+            
+            NSLog(@"%@",newMarker);
+        };
+    self.markers = [mutableSet copy];
+    //näkyviin jonnekin
+}
+
+
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the specified item to be editable.
     return YES;
 }
-*/
+
 
 /*
 // Override to support editing the table view.
@@ -96,5 +138,13 @@
     // Pass the selected object to the new view controller.
 }
 */
+
+
+-(MMDrawerController *)drawControllerFromAppDelegate
+{
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    return appDelegate.drawerController;
+}
+
 
 @end

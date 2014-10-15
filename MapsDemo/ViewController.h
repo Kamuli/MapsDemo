@@ -7,8 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <GoogleMaps/GoogleMaps.h>
 
 @interface ViewController : UIViewController
+@property (strong, nonatomic) IBOutlet UIView *mainView;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *barButtonLeft;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *barButtonRight;
+- (IBAction)leftBarButtonPressed:(UIBarButtonItem *)sender;
+- (IBAction)rightBarButtonPressed:(UIBarButtonItem *)sender;
 
 
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "PanoramaView.h"
+#import "AppDelegate.h"
 
 @implementation PanoramaView
 
@@ -17,5 +18,11 @@
     // Drawing code
 }
 */
+
+-(MMDrawerController *)drawControllerFromAppDelegate
+{
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    return appDelegate.drawerController;
+}
 
 @end
